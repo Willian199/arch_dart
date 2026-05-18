@@ -1,8 +1,21 @@
 name: arch_dart
-description: Dart/Flutter Architectural Testing Framework inspired by ArchUnit for Java.
-version: 0.0.4
+description: >-
+  Architectural testing framework for Dart and Flutter inspired by ArchUnit.
+  Enforce naming conventions, layer dependencies, clean architecture and more.
+version: 1.0.0
+repository: https://github.com/evandersondev/arch_dart
 homepage: https://github.com/evandersondev/arch_dart
+issue_tracker: https://github.com/evandersondev/arch_dart/issues
+funding:
+  - https://buymeacoffee.com/evandersondev
 license: MIT
+
+topics:
+  - architecture
+  - testing
+  - archunit
+  - clean-architecture
+  - static-analysis
 
 environment:
   sdk: ">=3.0.0 <4.0.0"

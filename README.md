@@ -1,31 +1,28 @@
 <p align="center">
-  <img src="./assets/logo.png" width="200px" align="center" alt="Darto logo" />
+  <img src="./assets/logo.png" width="200px" align="center" alt="ArchDart logo" />
   <h1 align="center">ArchDart</h1>
   <br>
   <p align="center">
-  <!-- <a href="https://darto-docs.vercel.app/">🐶 Oficial Darto Documentation</a> -->
-  <br/>
-    Dart/Flutter Architectural Testing Framework inspired by ArchUnit for Java. 
+    Architectural testing framework for Dart and Flutter, inspired by Java's ArchUnit.
   </p>
 </p>
 
 <br/>
 
+ArchDart lets you express your architectural contracts as plain Dart tests. Naming conventions, layer dependencies, clean architecture, feature isolation, cyclic dependencies — encode them once, fail the build when someone violates them.
+
+It is pure Dart (no Flutter dependency), works with the standard `test` package, and integrates equally well with `flutter_test` in Flutter projects.
+
 ### Support 💖
 
-If you find ArchDart useful, please consider supporting its development 🌟[Buy Me a Coffee](https://buymeacoffee.com/evandersondev).🌟 Your support helps us improve the framework and make it even better!
+If you find ArchDart useful, please consider supporting its development — 🌟 [Buy Me a Coffee](https://buymeacoffee.com/evandersondev) 🌟. Your support helps make the framework better.
 
 <br>
-<br>
-
-**Note**: Some rules in ArchDart have not been thoroughly tested and may contain potential errors. Please report any issues or unexpected behavior to the project repository for further investigation and improvement.
-
-ArchDart is a Dart and Flutter package inspired by Java's ArchUnit, designed to enforce architectural rules in your projects. It provides a fluent, expressive API to validate the structure, naming conventions, dependencies, and other architectural aspects of your Dart/Flutter codebase. ArchDart helps ensure that your project adheres to clean architecture principles, domain-driven design, or custom architectural patterns.
 
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
+- [Quick Start](#quick-start)
 - [Selectors](#selectors)
 - [Scopes](#scopes)
 - [Filters](#filters)
@@ -37,30 +34,29 @@ ArchDart is a Dart and Flutter package inspired by Java's ArchUnit, designed to 
   - [File Content](#file-content)
 - [Negations](#negations)
 - [Utilities](#utilities)
+- [Performance](#performance)
 - [Examples](#examples)
 - [Contributing](#contributing)
 - [License](#license)
 
 ## Installation
 
-Add ArchDart to your project by including it in your `pubspec.yaml`:
+Add ArchDart as a dev dependency in your `pubspec.yaml`:
 
 ```yaml
 dev_dependencies:
-  arch_dart: ^[latest-version]
+  arch_dart: ^1.0.0
 ```
 
-Run `flutter pub get` to install the package.
+Then run `dart pub get` (or `flutter pub get` in a Flutter project).
 
-## Usage
+## Quick Start
 
-ArchDart provides a fluent API to define architectural rules and validate them against your Dart/Flutter codebase. Rules are defined using selectors, scopes, filters, and assertions, and are executed using the `check` method. The package integrates with `flutter_test` for writing test cases.
-
-Here’s a basic example:
+Rules are written as plain test cases. Use the standard Dart `test` package in pure-Dart projects:
 
 ```dart
 import 'package:arch_dart/arch_dart.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Repositories should end with Repository', () async {
@@ -72,32 +68,50 @@ void main() {
 }
 ```
 
+Or use `flutter_test` in Flutter projects — the API is the same:
+
+```dart
+import 'package:arch_dart/arch_dart.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Domain should not depend on infra', () async {
+    await classes()
+        .inPackage('domain')
+        .shouldNotDependOn('infra')
+        .check();
+  });
+}
+```
+
+A rule is built by composing four parts: **selector → scope → filter → assertion**, and finished with `.check()`.
+
 ## Selectors
 
 Selectors define the type of elements to validate:
 
 | Selector      | Description                     |
 | ------------- | ------------------------------- |
-| `classes()`   | Selects all classes             |
-| `enums()`     | Selects all enums               |
-| `methods()`   | Selects all methods             |
-| `functions()` | Selects all top-level functions |
-| `features()`  | Selects feature directories     |
+| `classes()`   | All class declarations          |
+| `enums()`     | All enum declarations           |
+| `methods()`   | All methods on classes/enums    |
+| `functions()` | All top-level functions         |
+| `features()`  | Feature folders (e.g. `lib/features/*`) |
 
 ## Scopes
 
-Scopes narrow down the elements to a specific location in the project:
+Scopes narrow the elements to a specific location in the project:
 
 | Method                | Description                                      |
 | --------------------- | ------------------------------------------------ |
 | `inPackage('name')`   | Logical package (e.g., `controller`, `service`)  |
 | `inFolder('path')`    | Directory path in the project (e.g., `lib/core`) |
 | `inDirectory('path')` | Alias for `inFolder`                             |
-| `inFile('file.dart')` | Specific Dart file                               |
+| `inFile('file.dart')` | A specific Dart file                             |
 
 ## Filters
 
-Filters select a subset of elements based on specific criteria:
+Filters refine the selection further:
 
 | Method                         | Description                              |
 | ------------------------------ | ---------------------------------------- |
@@ -109,7 +123,7 @@ Filters select a subset of elements based on specific criteria:
 
 ## Assertions
 
-Assertions define the rules that elements must satisfy. They are prefixed with `should...`.
+Assertions are prefixed with `should...` and represent the rule that must hold.
 
 ### Modifiers and Types
 
@@ -167,7 +181,7 @@ Assertions define the rules that elements must satisfy. They are prefixed with `
 
 ## Negations
 
-Negations are assertions prefixed with `shouldNot...` to ensure elements do not meet certain criteria:
+Negations are assertions prefixed with `shouldNot...`:
 
 | Method                              | Description                                |
 | ----------------------------------- | ------------------------------------------ |
@@ -180,22 +194,45 @@ Negations are assertions prefixed with `shouldNot...` to ensure elements do not 
 
 ## Utilities
 
-Utilities help control rule execution and chaining:
+| Method                  | Description                                                       |
+| ----------------------- | ----------------------------------------------------------------- |
+| `check()`               | Executes the rule and throws if any violation is found            |
+| `andAlso()`             | Chains multiple rules with AND logic                              |
+| `orElse()`              | Chains multiple rules with OR logic                               |
+| `shouldFail()`          | Marks the rule as expected to fail (for negative testing)         |
+| `clearArchDartCache()`  | Clears the in-memory parse cache (see [Performance](#performance)) |
 
-| Method         | Description                                               |
-| -------------- | --------------------------------------------------------- |
-| `check()`      | Executes the rule validation                              |
-| `andAlso()`    | Chains multiple rules with AND logic                      |
-| `orElse()`     | Chains multiple rules with OR logic                       |
-| `shouldFail()` | Marks the rule as expected to fail (for negative testing) |
+## Performance
+
+Since `1.0.0`, ArchDart shares a single parsed AST across every rule executed in the same test run:
+
+- Dart files are read in parallel (`Future.wait`) instead of one at a time.
+- The resulting AST map is cached per directory path, so 15 rules over `lib/` cause only **one** filesystem scan + parse instead of 15.
+
+For typical suites this is a roughly 10–15× speedup vs `0.0.x`.
+
+If your test setup mutates files between rule executions (e.g. integration tests that generate code), call `clearArchDartCache()` between blocks:
+
+```dart
+import 'package:arch_dart/arch_dart.dart';
+import 'package:test/test.dart';
+
+void main() {
+  setUp(clearArchDartCache);
+
+  test('rules run on a fresh AST', () async {
+    // ...
+  });
+}
+```
+
+In normal test runs you do **not** need to call it — the cache is per-process.
 
 ## Examples
 
-Below are example test cases demonstrating common use cases for ArchDart:
+### Enforce Naming Conventions
 
-### Enforcing Naming Conventions
-
-Ensure all enums in `lib/core/enums` have a `stringToEnum` method and end with `Enum`:
+Every enum in `lib/core/enums` ends with `Enum` and exposes a `stringToEnum` method:
 
 ```dart
 test('All enums should have stringToEnum method', () async {
@@ -209,9 +246,9 @@ test('All enums should have stringToEnum method', () async {
 });
 ```
 
-### Enforcing Layer Dependencies
+### Enforce Layer Dependencies
 
-Ensure classes in the `presentation` package do not depend on `infra`:
+Presentation must never depend on infra:
 
 ```dart
 test('Presentation should not access Infra', () async {
@@ -222,9 +259,7 @@ test('Presentation should not access Infra', () async {
 });
 ```
 
-### Enforcing Clean Architecture
-
-Ensure use cases in `domain/usecases` have an `execute` method:
+### Enforce a Use Case Contract
 
 ```dart
 test('UseCases should have an execute method', () async {
@@ -236,9 +271,7 @@ test('UseCases should have an execute method', () async {
 });
 ```
 
-### Enforcing Feature Isolation
-
-Ensure features are independent of each other:
+### Enforce Feature Isolation
 
 ```dart
 test('Features should not reference each other', () async {
@@ -248,9 +281,7 @@ test('Features should not reference each other', () async {
 });
 ```
 
-### Enforcing Constructor Rules
-
-Ensure entities in `domain/entities` use only named required parameters:
+### Enforce Constructor Conventions
 
 ```dart
 test('Entities should have all required named parameters', () async {
@@ -261,12 +292,10 @@ test('Entities should have all required named parameters', () async {
 });
 ```
 
-### Enforcing Layer Structure
-
-Ensure the project follows the expected layer structure:
+### Enforce the Layered Architecture
 
 ```dart
-test('Layers should follow the expected structure', () async {
+test('Layers follow the expected structure', () async {
   await layers(['presentation', 'domain', 'infra', 'core'])
       .onlyStructure()
       .allowMissingLayers()
@@ -274,15 +303,13 @@ test('Layers should follow the expected structure', () async {
 });
 ```
 
-### Use `ArchRule` Type
-
-Use the `ArchRule` type to define custom rules:
+### Reuse a Rule via `ArchRule`
 
 ```dart
 test('Custom rule example', () async {
-  ArchRule rule = classes()
-    .inPackage('presentation')
-    .shouldNotDependOn('infra');
+  final ArchRule rule = classes()
+      .inPackage('presentation')
+      .shouldNotDependOn('infra');
 
   await rule.check();
 });
@@ -290,12 +317,12 @@ test('Custom rule example', () async {
 
 ## Contributing
 
-Contributions to ArchDart are welcome! Please submit issues or pull requests to the project repository. When contributing, ensure that:
+Contributions are welcome! Please open issues or pull requests at <https://github.com/evandersondev/arch_dart>. When contributing:
 
-- New rules are thoroughly tested.
-- Documentation is updated to reflect new features.
-- Code follows Dart best practices and includes appropriate comments.
+- New rules should be covered by tests in `test/`.
+- Update the README to reflect any user-facing change.
+- Run `dart analyze lib/` and `dart test` before opening a PR.
 
 ## License
 
-ArchDart is licensed under the [MIT License](LICENSE). See the LICENSE file for details.
+ArchDart is licensed under the [MIT License](LICENSE).

@@ -41,7 +41,16 @@ class LayerRuleBuilder {
   }
 }
 
-// Função de conveniência
+/// Describes the expected architectural [layerNames] (top-level folders under
+/// `lib/`) and returns a builder used to assert their structure and/or the
+/// allowed dependency direction between them.
+///
+/// ```dart
+/// await layers(['presentation', 'domain', 'infra', 'core'])
+///     .onlyStructure()
+///     .allowMissingLayers()
+///     .check();
+/// ```
 LayerRuleBuilder layers(List<String> layerNames) {
   return LayerRuleBuilder(layerNames);
 }

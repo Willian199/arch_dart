@@ -327,10 +327,45 @@ class FeaturesSelector {
   }
 }
 
+/// Starts a rule chain that targets class declarations.
+///
+/// Narrow the scope with [ClassSelector.inFolder], [ClassSelector.inPackage]
+/// or [ClassSelector.inFile], then add an assertion such as
+/// `shouldHaveNameEndingWith` or `shouldNotDependOn` and finish with `.check()`.
+///
+/// ```dart
+/// await classes()
+///     .inFolder('lib/domain')
+///     .shouldHaveNameEndingWith('UseCase')
+///     .check();
+/// ```
 ClassSelector classes() => ClassSelector('');
+
+/// Starts a rule chain that targets method declarations.
+///
+/// Methods are inspected inside classes and enums located in the configured
+/// scope. Combine with `shouldBeAsync()`, `shouldReturnType(...)` or
+/// annotation rules.
 MethodSelector methods() => MethodSelector('');
+
+/// Starts a rule chain that targets top-level function declarations.
+///
+/// Use this to enforce naming, visibility or annotation rules on free
+/// functions (i.e. functions declared outside of a class).
 FunctionSelector functions() => FunctionSelector('');
+
+/// Starts a rule chain that targets enum declarations.
+///
+/// Useful for enforcing naming conventions on enums or asserting they expose
+/// a specific method (e.g. a `stringToEnum` factory).
 EnumSelector enums() => EnumSelector('');
+
+/// Selects the feature folders under [path] (default: `features`) so they can
+/// be tested as bounded contexts.
+///
+/// ```dart
+/// await features().shouldBeIndependent().check();
+/// ```
 FeaturesSelector features([String path = 'features']) => FeaturesSelector(path);
 
 class MethodRuleBuilder {

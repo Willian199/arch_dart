@@ -58,7 +58,7 @@ class AccessRule extends ArchRule {
   //     final yaml = loadYaml(content) as Map;
   //     return yaml['name'] as String? ?? '';
   //   } catch (e) {
-  //     print('Erro ao ler pubspec.yaml: $e');
+  //     print('Error reading pubspec.yaml: $e');
   //     return '';
   //   }
   // }

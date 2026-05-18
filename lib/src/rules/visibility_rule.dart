@@ -118,7 +118,7 @@ class VisibilityRule extends ArchRule {
       violations
           .add('Declaration "$enumName" should NOT be an enum (file: $path)');
     }
-    // Se não é negativo, então está correto (é um enum)
+    // If not negated, the enum declaration is the expected outcome.
   }
 
   void _checkMixinDeclaration(MixinDeclaration declaration, String mixinName,
@@ -127,7 +127,7 @@ class VisibilityRule extends ArchRule {
       violations
           .add('Declaration "$mixinName" should NOT be a mixin (file: $path)');
     }
-    // Se não é negativo, então está correto (é um mixin)
+    // If not negated, the mixin declaration is the expected outcome.
   }
 
   bool _hasFunctionModifier(FunctionDeclaration declaration) {

@@ -126,7 +126,7 @@ class ChainedRule extends ArchRule {
         }
       }
       throw Exception(
-          'Nenhuma das regras alternativas foi atendida:\n${errors.join('\n---\n')}');
+          'None of the alternative rules were satisfied:\n${errors.join('\n---\n')}');
     } else {
       for (final rule in rules) {
         await rule.check();
@@ -202,7 +202,7 @@ class RuleBuilder {
       case 'shouldNotHaveImports':
         return ImportRule(package, parameters[0] as List<String>);
       default:
-        throw Exception('Método não suportado: $methodName');
+        throw Exception('Unsupported method: $methodName');
     }
   }
 
