@@ -44,5 +44,5 @@ export 'src/rules/only_dependency_rule.dart';
 export 'src/rules/reside_in_rule.dart';
 export 'src/rules/visibility_rule.dart';
 export 'src/selectors/class_that.dart';
-export 'src/utils/analyzer_utils.dart' show clearArchDartCache;
+export 'src/utils/analyzer_utils.dart' show clearArchDartCache, parseDirectoryWithPaths;
 export 'src/utils/rule_base.dart';
