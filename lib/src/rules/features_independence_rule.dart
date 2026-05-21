@@ -8,7 +8,12 @@ import '../utils/rule_messages.dart';
 class FeaturesIndependenceRule extends ArchRule {
   final String featuresPath;
 
-  FeaturesIndependenceRule([this.featuresPath = 'features']);
+  final List<String> sharedFeatures;
+
+  FeaturesIndependenceRule(
+    this.featuresPath, {
+    this.sharedFeatures = const [],
+  });
 
   @override
   Future<void> check() async {
@@ -34,7 +39,9 @@ class FeaturesIndependenceRule extends ArchRule {
           final importPath = directive.uri.stringValue ?? '';
           final importedFeature = _extractFeatureFromImport(importPath);
 
-          if (importedFeature != null && importedFeature != feature) {
+          if (importedFeature != null &&
+              importedFeature != feature &&
+              !sharedFeatures.contains(importedFeature)) {
             featureDependencies[feature]!.add(importedFeature);
             violations.add(RuleMessages.dependencyViolation(
                 path, 'feature "$importedFeature"', importPath));

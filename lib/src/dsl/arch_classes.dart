@@ -342,11 +342,21 @@ class FunctionSelector {
 
 class FeaturesSelector {
   final String featuresPath;
+  final List<String> _sharedFeatures;
 
-  FeaturesSelector([this.featuresPath = 'features']);
+  FeaturesSelector([this.featuresPath = 'features'])
+      : _sharedFeatures = const [];
+
+  FeaturesSelector._withShared(this.featuresPath, this._sharedFeatures);
+
+  FeaturesSelector allowingShared(List<String> sharedFeatures) =>
+      FeaturesSelector._withShared(featuresPath, sharedFeatures);
 
   FeaturesIndependenceRule shouldBeIndependent() {
-    return FeaturesIndependenceRule(featuresPath);
+    return FeaturesIndependenceRule(
+      featuresPath,
+      sharedFeatures: _sharedFeatures,
+    );
   }
 }
 
