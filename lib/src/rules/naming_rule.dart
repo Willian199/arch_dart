@@ -15,6 +15,7 @@ class NamingRule extends ArchRule {
   final bool checkFunctions;
   final bool checkEnums;
   final bool negate;
+  final bool ignorePrivate;
 
   NamingRule(
     this.package,
@@ -26,6 +27,7 @@ class NamingRule extends ArchRule {
     this.checkFunctions = false,
     this.checkEnums = false,
     this.negate = false,
+    this.ignorePrivate = false,
   });
 
   // Constructor específico para métodos
@@ -38,7 +40,8 @@ class NamingRule extends ArchRule {
   })  : checkClasses = false,
         checkMethods = true,
         checkFunctions = false,
-        checkEnums = false;
+        checkEnums = false,
+        ignorePrivate = false;
 
   // Constructor específico para funções
   NamingRule.forFunctions(
@@ -50,7 +53,8 @@ class NamingRule extends ArchRule {
   })  : checkClasses = false,
         checkMethods = false,
         checkFunctions = true,
-        checkEnums = false;
+        checkEnums = false,
+        ignorePrivate = false;
 
   // Constructor específico para enums
   NamingRule.forEnums(
@@ -62,7 +66,8 @@ class NamingRule extends ArchRule {
   })  : checkClasses = false,
         checkMethods = false,
         checkFunctions = false,
-        checkEnums = true;
+        checkEnums = true,
+        ignorePrivate = false;
 
   @override
   Future<void> check() async {
@@ -96,6 +101,7 @@ class NamingRule extends ArchRule {
   void _checkClassName(
       ClassDeclaration declaration, String path, List<String> violations) {
     final className = declaration.name.lexeme;
+    if (ignorePrivate && className.startsWith('_')) return;
     final matches = _nameMatches(className);
 
     if (negate) {
@@ -114,6 +120,7 @@ class NamingRule extends ArchRule {
   void _checkEnumName(
       EnumDeclaration declaration, String path, List<String> violations) {
     final enumName = declaration.name.lexeme;
+    if (ignorePrivate && enumName.startsWith('_')) return;
     final matches = _nameMatches(enumName);
 
     if (negate) {
@@ -132,6 +139,7 @@ class NamingRule extends ArchRule {
   void _checkFunctionName(
       FunctionDeclaration declaration, String path, List<String> violations) {
     final functionName = declaration.name.lexeme;
+    if (ignorePrivate && functionName.startsWith('_')) return;
     final matches = _nameMatches(functionName);
 
     if (negate) {
@@ -154,6 +162,7 @@ class NamingRule extends ArchRule {
 
     for (final method in methods) {
       final methodName = method.name.lexeme;
+      if (ignorePrivate && methodName.startsWith('_')) continue;
       final matches = _nameMatches(methodName);
 
       if (negate) {

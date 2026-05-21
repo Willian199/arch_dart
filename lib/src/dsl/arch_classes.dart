@@ -31,19 +31,30 @@ class ClassSelector {
   final String? nameFilter;
   final bool? checkContains;
   final bool? checkPrefix;
+  final bool ignorePrivate;
 
   ClassSelector(
     this.package, {
     this.nameFilter,
     this.checkContains,
     this.checkPrefix,
+    this.ignorePrivate = false,
   });
+
+  ClassSelector ignoringPrivate() => ClassSelector(
+        package,
+        nameFilter: nameFilter,
+        checkContains: checkContains,
+        checkPrefix: checkPrefix,
+        ignorePrivate: true,
+      );
 
   ClassSelector inPackage(String packageName) => ClassSelector(
         packageName,
         nameFilter: nameFilter,
         checkContains: checkContains,
         checkPrefix: checkPrefix,
+        ignorePrivate: ignorePrivate,
       );
 
   ClassSelector inFolder(String folder) => ClassSelector(
@@ -51,6 +62,7 @@ class ClassSelector {
         nameFilter: nameFilter,
         checkContains: checkContains,
         checkPrefix: checkPrefix,
+        ignorePrivate: ignorePrivate,
       );
 
   ClassSelector inDirectory(String directory) => ClassSelector(
@@ -58,6 +70,7 @@ class ClassSelector {
         nameFilter: nameFilter,
         checkContains: checkContains,
         checkPrefix: checkPrefix,
+        ignorePrivate: ignorePrivate,
       );
 
   ClassSelector inFile(String file) => ClassSelector(
@@ -65,6 +78,7 @@ class ClassSelector {
         nameFilter: nameFilter,
         checkContains: checkContains,
         checkPrefix: checkPrefix,
+        ignorePrivate: ignorePrivate,
       );
 
   NoDependencyRule shouldNotDependOn(String targetPackage) {
@@ -181,7 +195,13 @@ class ClassSelector {
   }
 
   NamingRule shouldHaveNameEndingWith(String suffix) {
-    return NamingRule(package, suffix, checkClasses: true, checkMethods: false);
+    return NamingRule(
+      package,
+      suffix,
+      checkClasses: true,
+      checkMethods: false,
+      ignorePrivate: ignorePrivate,
+    );
   }
 
   NamingRule shouldHaveMethodWithName(String name) {
@@ -219,6 +239,7 @@ class ClassSelector {
         nameFilter: suffix,
         checkContains: false,
         checkPrefix: false,
+        ignorePrivate: ignorePrivate,
       );
 
   ClassSelector withNameContaining(String substring) => ClassSelector(
@@ -226,6 +247,7 @@ class ClassSelector {
         nameFilter: substring,
         checkContains: true,
         checkPrefix: false,
+        ignorePrivate: ignorePrivate,
       );
 
   ClassSelector withNameStartingWith(String prefix) => ClassSelector(
@@ -233,6 +255,7 @@ class ClassSelector {
         nameFilter: prefix,
         checkContains: false,
         checkPrefix: true,
+        ignorePrivate: ignorePrivate,
       );
 
   AnnotationRule withAnnotation(String annotation) =>
