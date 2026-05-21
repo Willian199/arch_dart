@@ -1,5 +1,4 @@
 import 'package:analyzer/dart/ast/ast.dart';
-import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:path/path.dart' as p;
 
 import '../utils/analyzer_utils.dart';
@@ -15,7 +14,22 @@ class ExtendRule extends ArchRule {
     this.package,
     this.parentClass, {
     this.allowedClasses,
+    this.nameFilter,
+    this.checkContains = false,
+    this.checkPrefix = false,
   });
+
+  final String? nameFilter;
+  final bool checkContains;
+  final bool checkPrefix;
+
+  bool _matchesName(String className) {
+    final filter = nameFilter;
+    if (filter == null) return true;
+    if (checkContains) return className.contains(filter);
+    if (checkPrefix) return className.startsWith(filter);
+    return className.endsWith(filter);
+  }
 
   @override
   Future<void> check() async {
@@ -31,6 +45,7 @@ class ExtendRule extends ArchRule {
       for (final declaration in unit.declarations) {
         if (declaration is ClassDeclaration) {
           final className = declaration.name.lexeme;
+          if (!_matchesName(className)) continue;
           final extendsClause = declaration.extendsClause;
 
           if (extendsClause == null) {
@@ -39,13 +54,10 @@ class ExtendRule extends ArchRule {
             continue;
           }
 
-          final visitor = _TypeNameVisitor();
-          extendsClause.superclass.accept(visitor);
-          final extendedClass = visitor.typeName;
+          final extendedClass = extendsClause.superclass.name.lexeme;
 
           if (allowedClasses != null) {
-            if (extendedClass == null ||
-                !allowedClasses!.contains(extendedClass)) {
+            if (!allowedClasses!.contains(extendedClass)) {
               violations.add(RuleMessages.extendViolation(
                   className, 'one of: ${allowedClasses!.join(", ")}', path));
             }
@@ -65,12 +77,3 @@ class ExtendRule extends ArchRule {
   }
 }
 
-class _TypeNameVisitor extends GeneralizingAstVisitor<void> {
-  String? typeName;
-
-  @override
-  void visitSimpleIdentifier(SimpleIdentifier node) {
-    typeName ??= node.name;
-    super.visitSimpleIdentifier(node);
-  }
-}

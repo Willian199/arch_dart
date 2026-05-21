@@ -182,9 +182,21 @@ class ClassSelector {
   ImplementRule shouldImplementOnly(List<String> interfaces) =>
       ImplementRule(package, interfaces.first, allowedInterfaces: interfaces);
 
-  ExtendRule shouldExtend(String className) => ExtendRule(package, className);
-  ExtendRule shouldExtendAnyOf(List<String> classNames) =>
-      ExtendRule(package, classNames.first, allowedClasses: classNames);
+  ExtendRule shouldExtend(String className) => ExtendRule(
+        package,
+        className,
+        nameFilter: nameFilter,
+        checkContains: checkContains ?? false,
+        checkPrefix: checkPrefix ?? false,
+      );
+  ExtendRule shouldExtendAnyOf(List<String> classNames) => ExtendRule(
+        package,
+        classNames.first,
+        allowedClasses: classNames,
+        nameFilter: nameFilter,
+        checkContains: checkContains ?? false,
+        checkPrefix: checkPrefix ?? false,
+      );
 
   MethodRuleBuilder shouldHaveMethodThat() {
     return MethodRuleBuilder(package);
